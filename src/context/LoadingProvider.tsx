@@ -15,10 +15,15 @@ interface LoadingType {
 
 export const LoadingContext = createContext<LoadingType | null>(null);
 
+// Detect actual mobile/touch devices — catches phones in desktop mode too
+const isMobileDevice = () =>
+  /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+  window.innerWidth <= 768;
+
 export const LoadingProvider = ({ children }: PropsWithChildren) => {
   const [isLoading, setIsLoading] = useState(() => {
-    // Skip loading on mobile
-    if (window.innerWidth <= 768) return false;
+    // Skip loading screen on real mobile devices (including desktop-mode phones)
+    if (isMobileDevice()) return false;
     return true;
   });
   const [loading, setLoading] = useState(0);
@@ -30,12 +35,13 @@ export const LoadingProvider = ({ children }: PropsWithChildren) => {
   };
   useEffect(() => {
     // Auto-start animations on mobile since there's no 3D model
-    if (window.innerWidth <= 768) {
+    if (isMobileDevice()) {
       import("../components/utils/initialFX").then((module) => {
         if (module.initialFX) {
+          // 800ms gives lazy components time to fully mount before GSAP targets their DOM
           setTimeout(() => {
             module.initialFX();
-          }, 100);
+          }, 800);
         }
       });
     }

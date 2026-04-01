@@ -16,7 +16,11 @@ const MainContainer = ({ children }: PropsWithChildren) => {
   const [isDesktopView, setIsDesktopView] = useState<boolean>(
     window.innerWidth > 1024
   );
-  const [isMobile] = useState<boolean>(window.innerWidth <= 768);
+  // Detect real mobile devices (including phones in desktop mode) to skip 3D model
+  const [isMobile] = useState<boolean>(
+    window.innerWidth <= 768 ||
+    /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+  );
 
   useEffect(() => {
     const resizeHandler = () => {
